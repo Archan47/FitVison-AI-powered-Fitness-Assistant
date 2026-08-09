@@ -1,1 +1,1 @@
-# FitVison-AI-power-Fitness-Assistant
+# FitVison-AI-powered-Fitness-Assistant
