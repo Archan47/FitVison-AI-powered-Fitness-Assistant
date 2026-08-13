@@ -1,6 +1,8 @@
 package com.fitvision.authservice.controller;
 
 
+import com.fitvision.authservice.dto.AuthResponse;
+import com.fitvision.authservice.dto.LoginRequest;
 import com.fitvision.authservice.dto.SignupRequest;
 import com.fitvision.authservice.dto.UserDto;
 import com.fitvision.authservice.service.AuthService;
@@ -23,11 +25,16 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<UserDto> signUp(@RequestBody SignupRequest signupRequest){
-
         UserDto userDto = authService.signUp(signupRequest);
         log.info("Signup request from : {} ", signupRequest.getUserName());
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
 
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest){
+        AuthResponse response = authService.login(loginRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/users")
