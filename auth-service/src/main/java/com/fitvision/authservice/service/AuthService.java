@@ -1,5 +1,7 @@
 package com.fitvision.authservice.service;
 
+import com.fitvision.authservice.dto.AuthResponse;
+import com.fitvision.authservice.dto.LoginRequest;
 import com.fitvision.authservice.dto.SignupRequest;
 import com.fitvision.authservice.dto.UserDto;
 import com.fitvision.authservice.model.User;
@@ -21,6 +23,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public UserDto signUp(SignupRequest signupRequest) {
 
@@ -54,6 +57,33 @@ public class AuthService {
         );
     }
 
+
+    public AuthResponse login(LoginRequest loginRequest) {
+        log.info("Login attempt for email: {}", loginRequest.getEmail());
+
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() ->
+                        new RuntimeException("Invalid email or password")
+                );
+
+        if (!passwordEncoder.matches(
+                loginRequest.getPassword(),
+                user.getPassword())) {
+
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        if (user.getVerificationStatus() != VerificationStatus.VERIFIED) {
+            throw new RuntimeException("Please verify your email before login");
+        }
+
+        String token = jwtService.generateToken(user.getUserName());
+        log.info("Login successful for userName: {}", user.getUserName());
+
+        return new AuthResponse(token, "Login successful");
+    }
+
+    // This service is for just testing
     public List<UserDto> allUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
@@ -67,4 +97,5 @@ public class AuthService {
                 ))
                 .toList();
     }
+
 }
